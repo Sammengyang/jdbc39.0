@@ -40,7 +40,8 @@ public class FirstConnect {
 
     @Test
     public void test1(){
-        Connection connect = JDBCUtils.getConnect();
+        JDBCUtils jdbcUtils = new JDBCUtils();
+        Connection connect = jdbcUtils.getConnect();
         System.out.println(connect);
     }
 }

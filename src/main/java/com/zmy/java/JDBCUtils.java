@@ -3,6 +3,8 @@ package com.zmy.java;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Sam  Email:superdouble@yeah.net
@@ -13,12 +15,15 @@ public class JDBCUtils {
     static String url = "jdbc:mysql://localhost:3306/javatest?rewriteBatchedStatements=true";
     static String user = "root";
     static String password = "123456";
+    private Connection conn = null;
+    private PreparedStatement ps = null;
+    private ResultSet rs = null;
 
     /**
      * 获取数据库连接
      * @return
      */
-    public static Connection getConnect(){
+    public Connection getConnect(){
         Connection con = null;
         try {
             //1.加载驱动
@@ -38,7 +43,7 @@ public class JDBCUtils {
      * @param args
      * @throws Exception
      */
-    public static void Update(String sql,Object ... args) throws Exception{
+    public void Update(String sql,Object ... args) throws Exception{
         // 获取连接
         Connection conn = getConnect();
         // 预编译sql语句
@@ -61,7 +66,7 @@ public class JDBCUtils {
      * @return
      * @throws Exception
      */
-    public static <T>T Query(Class<T> tClass,String sql,Object...args) throws Exception {
+    public <T>T Query(Class<T> tClass,String sql,Object...args) throws Exception {
         // 获取连接
         Connection conn = getConnect();
         // 预编译sql语句
@@ -94,12 +99,73 @@ public class JDBCUtils {
         return t;
     }
 
+    // 查询数据
+    public void  getAll(){
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            // 建立链接
+            conn = getConnect();
+            String sql = "select * from sam";
+            // 预编译sql语句
+            ps = conn.prepareStatement(sql);
+            // 执行sql语句
+            rs = ps.executeQuery();
+            // 遍历结果集
+            while (rs.next()){
+                System.out.println(rs.getInt("id")+":"+rs.getString("name")+":"+rs.getString("psd"));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        closeResource(conn,ps,rs);
+    }
+
+    public List<sam> getList(){
+        List<sam> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = getConnect();
+            String sql = "select * from sam";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()){
+                sam sam = new sam(rs.getInt("id"), rs.getString("name"), rs.getString("psd"));
+                list.add(sam);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        closeResource(conn,ps,rs);
+        return list;
+    }
+
+    /**
+     * 向数据库添加一行数据
+     * @param sam
+     */
+    public void addOne(sam sam){
+        try {
+            conn = getConnect();
+            String sql = "insert into sam values("+sam.getId()+",'"+sam.getName()+"',"+sam.getPsd()+");";
+            ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        closeResource(conn,ps);
+    }
+
+
     /**
      * 关闭资源
      * @param con
      * @param statement
      */
-    public static void closeResource(Connection con,Statement statement ){
+    public void closeResource(Connection con,Statement statement ){
         try {
             if (statement!=null)
                 statement.close();
@@ -117,7 +183,7 @@ public class JDBCUtils {
      * @param statement
      * @param resultSet
      */
-    public static void closeResource(Connection con,Statement statement,ResultSet resultSet){
+    public void closeResource(Connection con,Statement statement,ResultSet resultSet){
         try {
             if (resultSet!=null)
                 resultSet.close();
