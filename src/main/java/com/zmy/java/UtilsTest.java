@@ -2,7 +2,7 @@ package com.zmy.java;
 
 import org.junit.Test;
 
-import java.sql.Connection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -132,5 +132,23 @@ public class UtilsTest {
             System.out.println("请先注册");
         }
 
+    }
+    /**
+     *多表查询，测试查询班级和班级内的学生
+     */
+    @Test
+    public void TestQueryClass(){
+        JDBCUtils jdbcUtils = new JDBCUtils();
+        List<clazz> clazzes = jdbcUtils.QueryStu();
+        // 获取班级集合
+        Iterator iterator = clazzes.iterator();
+        while (iterator.hasNext()){
+            clazz clazz = (clazz) iterator.next();
+            System.out.println(clazz.toString());
+            System.out.println("学号\t\t姓名\t\t性别\t\t\t生日\t\t\t班级");
+            for (int i = 0; i < clazz.getStus().size(); i++) {
+                System.out.println(clazz.getStus().get(i).toString());
+            }
+        }
     }
 }

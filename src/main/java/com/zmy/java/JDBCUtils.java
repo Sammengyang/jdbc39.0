@@ -183,6 +183,86 @@ public class JDBCUtils {
         closeResource(conn,ps);
     }
 
+    /*
+        查询所有班级及班内的所有学生
+        1. 查询所有班级，把班级放在list中
+        2. 遍历班级集合，获取每个班级编号cid
+        3. 根据班级id查询班级内对应的学生
+        3. 将学生添加到对应班级的集合stus中
+        4. 返回班级list
+     */
+    public List<clazz> QueryStu(){
+        List<clazz> classList = new ArrayList();
+        String sqlclass = "select * from clazz";
+        try {
+            // 获取链接
+            conn = getConnect();
+            // 预编译sql语句
+            ps = conn.prepareStatement(sqlclass);
+            // 执行
+            ResultSet rs = ps.executeQuery();
+            // 获区班级信息，并放入集合中
+            while (rs.next()){
+                clazz clazz = new clazz();
+                clazz.setCid(rs.getInt("cid"));
+                clazz.setCname(rs.getString("cname"));
+                clazz.setCdesc(rs.getString("cdesc"));
+                classList.add(clazz);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            // 查询学生表
+            String sqlstu = "select * from student where cid=?";
+            // 预编译sql语句
+            ps = conn.prepareStatement(sqlstu);
+            for (int i = 0; i < classList.size(); i++) {
+                // 创建集合暂存每个班级内的学生
+                List<student> students = new ArrayList<>();
+                // 填充占位符
+                ps.setObject(1, classList.get(i).getCid());//todo  填充占位符问题
+                // 执行sql语句
+                rs = ps.executeQuery();
+                while (rs.next()){
+                    student student = new student();
+                    student.setSid(rs.getInt("sid"));
+                    student.setCid(rs.getInt("cid"));
+                    student.setSname(rs.getString("sname"));
+                    student.setSex(rs.getString("sex"));
+                    student.setBirthday(rs.getDate("birthday"));
+                    // 将学生添加到学生的集合中
+                    students.add(student);
+                }
+                // 将学生集合赋值到班级stus集合属性
+                classList.get(i).setStus(students);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResource(conn,ps,rs);
+        }
+        return classList;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * 关闭资源
      * @param con
