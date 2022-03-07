@@ -92,11 +92,12 @@ public class JDBCUtils {
                 Field field = tClass.getDeclaredField(colName);
                 field.setAccessible(true);
                 field.set(t, colvalue);
+                return t;
             }
         }
         // 关闭数据库
         closeResource(conn,ps,resultSet);
-        return t;
+        return null;
     }
 
     // 查询数据

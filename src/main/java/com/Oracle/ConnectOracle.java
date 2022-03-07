@@ -1,5 +1,7 @@
 package com.Oracle;
 
+import org.junit.Test;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -10,7 +12,7 @@ import java.sql.DriverManager;
  */
 public class ConnectOracle {
 
-    String url = "";
+    String url = "jdbc:oracle:thin:@localhost:3306:orcl";
     String name = "scott";
     String password = "123456";
     Connection conn = null;
@@ -22,5 +24,10 @@ public class ConnectOracle {
             e.printStackTrace();
         }
         return conn;
+    }
+    @Test
+    public void testOrcale(){
+        conn = GetConnect();
+        System.out.println(conn);
     }
 }
