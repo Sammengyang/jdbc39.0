@@ -84,4 +84,11 @@ public class UtilsTest {
         JDBCUtils jdbcUtils = new JDBCUtils();
         jdbcUtils.addOne(new sam(100,"sss","123456"));
     }
+
+    @Test
+    public void testUpdateSam(){
+        JDBCUtils jdbcUtils = new JDBCUtils();
+        String sql = "insert into sam value (?,?,?)";
+        jdbcUtils.UpdateSam(sql,"111","zmy","123456");
+    }
 }

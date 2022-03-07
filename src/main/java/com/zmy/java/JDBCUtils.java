@@ -159,6 +159,24 @@ public class JDBCUtils {
         closeResource(conn,ps);
     }
 
+    /**
+     * 对sam表进行增删改
+     * @param sql
+     * @param args
+     */
+    public void UpdateSam(String sql,Object ...args){
+        try {
+            conn = getConnect();
+            ps = conn.prepareStatement(sql);
+            for (int i =0;i<args.length;i++){
+                ps.setString(i+1, String.valueOf(args[i]));
+            }
+            ps.executeUpdate();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        closeResource(conn,ps);
+    }
 
     /**
      * 关闭资源
