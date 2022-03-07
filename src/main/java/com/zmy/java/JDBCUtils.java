@@ -73,7 +73,7 @@ public class JDBCUtils {
         PreparedStatement ps = conn.prepareStatement(sql);
         // 填充占位符
         for (int i = 0; i < args.length; i++) {
-            ps.setString(i + 1, String.valueOf(args[i]));
+            ps.setObject(i + 1, args[i]);
         }
         //获取结果集
         ResultSet resultSet = ps.executeQuery();
@@ -92,8 +92,8 @@ public class JDBCUtils {
                 Field field = tClass.getDeclaredField(colName);
                 field.setAccessible(true);
                 field.set(t, colvalue);
-                return t;
             }
+            return t;
         }
         // 关闭数据库
         closeResource(conn,ps,resultSet);
@@ -123,6 +123,10 @@ public class JDBCUtils {
         closeResource(conn,ps,rs);
     }
 
+    /**
+     * 查询数据库
+     * @return
+     */
     public List<sam> getList(){
         List<sam> list = new ArrayList<>();
         Connection conn = null;
@@ -151,7 +155,7 @@ public class JDBCUtils {
     public void addOne(sam sam){
         try {
             conn = getConnect();
-            String sql = "insert into sam values("+sam.getId()+",'"+sam.getName()+"',"+sam.getPsd()+");";
+            String sql = "insert into sam values("+sam.id+",'"+sam.name+"',"+sam.psd+");";
             ps = conn.prepareStatement(sql);
             ps.executeUpdate();
         }catch (Exception e){

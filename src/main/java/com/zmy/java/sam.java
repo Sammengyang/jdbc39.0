@@ -6,9 +6,9 @@ package com.zmy.java;
  * @create 2022-03-04 17:30
  */
 public class sam {
-    private int id;
-    private String name;
-    private String psd;
+    int id;
+    String name;
+    String psd;
 
     public sam() {
     }
@@ -26,29 +26,5 @@ public class sam {
                 ", name='" + name + '\'' +
                 ", psd='" + psd + '\'' +
                 '}';
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPsd() {
-        return psd;
-    }
-
-    public void setPsd(String psd) {
-        this.psd = psd;
     }
 }

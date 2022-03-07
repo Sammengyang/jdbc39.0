@@ -19,8 +19,15 @@ public class UtilsTest {
     public void test1() {
         JDBCUtils jdbcUtils = new JDBCUtils();
         String sql = "INSERT INTO sam VALUES(?,?,?)";
+        Scanner sc = new Scanner(System.in);
+        System.out.println("输入账号:");
+        int id = sc.nextInt();
+        System.out.println("输入用户名:");
+        String name = sc.next();
+        System.out.println("请输入用密码:");
+        String psd = sc.next();
         try {
-            jdbcUtils.Update(sql, 1, "zmy", "123456");
+            jdbcUtils.Update(sql, id, name,psd);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -34,7 +41,7 @@ public class UtilsTest {
         JDBCUtils jdbcUtils = new JDBCUtils();
         String sql = "delete  from sam where id=?";
         try {
-            jdbcUtils.Update(sql, 4);
+            jdbcUtils.Update(sql, 1);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,6 +61,9 @@ public class UtilsTest {
         }
     }
 
+    /**
+     * 测试查询
+     */
     @Test
     public void test4() {
         JDBCUtils jdbcUtils = new JDBCUtils();
@@ -104,7 +114,7 @@ public class UtilsTest {
     public void login() {
         JDBCUtils jdbcUtils = new JDBCUtils();
         Scanner sc = new Scanner(System.in);
-        String sql = "select * from sam where name=? and psd=?";
+        String sql = "select id,name,psd from sam where name=? and psd=?";
         System.out.println("输入用户名：");
         String Name = sc.next();
         System.out.println("输入用密码：");
@@ -116,7 +126,8 @@ public class UtilsTest {
             e.printStackTrace();
         }
         if (query != null) {
-            System.out.println("登录成功！");
+            System.out.println("登录成功！ ");
+            System.out.println(query.toString());
         }else{
             System.out.println("请先注册");
         }
