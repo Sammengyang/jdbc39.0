@@ -182,7 +182,7 @@ public class JDBCUtils {
         closeResource(con,ps);
     }
 
-    /*
+    /*    方法一
         查询所有班级及班内的所有学生
         1. 查询所有班级，把班级放在list中
         2. 遍历班级集合，获取每个班级编号cid
@@ -257,6 +257,33 @@ public class JDBCUtils {
             e.printStackTrace();
         }
         return students;
+    }
+
+    /*  方法二
+        多表联查，获取学生信息以及班级信息
+     */
+    public List<VO> getStuAndCla(){
+        List<VO> stulist = new ArrayList<>();
+        getConnect();
+        String sql = "select sid,sname,sex,cid,cdesc from " +
+                "student s,clazz c where s.cid=c.cid";
+        try {
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()){
+                VO vo = new VO(
+                  rs.getInt(1),
+                  rs.getString(2),
+                  rs.getString(3),
+                  rs.getInt(4),
+                  rs.getString(5)
+                );
+                stulist.add(vo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return stulist;
     }
 
 
