@@ -15,16 +15,15 @@ public class JDBCUtils {
     static String url = "jdbc:mysql://localhost:3306/javatest?rewriteBatchedStatements=true";
     static String user = "root";
     static String password = "123456";
-    private Connection conn = null;
-    private PreparedStatement ps = null;
-    private ResultSet rs = null;
+    static Connection con = null;
+    static PreparedStatement ps = null;
+    static ResultSet rs = null;
 
     /**
      * 获取数据库连接
      * @return
      */
     public Connection getConnect(){
-        Connection con = null;
         try {
             //1.加载驱动
             Class.forName("com.mysql.jdbc.Driver");
@@ -45,16 +44,16 @@ public class JDBCUtils {
      */
     public void Update(String sql,Object ... args) throws Exception{
         // 获取连接
-        Connection conn = getConnect();
+        getConnect();
         // 预编译sql语句
-        PreparedStatement ps = conn.prepareStatement(sql);
+        PreparedStatement ps = con.prepareStatement(sql);
         // 填充占位符
         for (int i = 0; i < args.length; i++) {
             ps.setString(i+1, String.valueOf(args[i]));
         }
         // 执行sql语句
         ps.executeUpdate();
-        closeResource(conn,ps);
+        closeResource(con,ps);
     }
 
     /**
@@ -68,9 +67,9 @@ public class JDBCUtils {
      */
     public <T>T Query(Class<T> tClass,String sql,Object...args) throws Exception {
         // 获取连接
-        Connection conn = getConnect();
+        getConnect();
         // 预编译sql语句
-        PreparedStatement ps = conn.prepareStatement(sql);
+        PreparedStatement ps = con.prepareStatement(sql);
         // 填充占位符
         for (int i = 0; i < args.length; i++) {
             ps.setObject(i + 1, args[i]);
@@ -96,7 +95,7 @@ public class JDBCUtils {
             return t;
         }
         // 关闭数据库
-        closeResource(conn,ps,resultSet);
+        closeResource(con,ps,resultSet);
         return null;
     }
 
@@ -107,7 +106,7 @@ public class JDBCUtils {
         ResultSet rs = null;
         try {
             // 建立链接
-            conn = getConnect();
+            getConnect();
             String sql = "select * from sam";
             // 预编译sql语句
             ps = conn.prepareStatement(sql);
@@ -133,7 +132,7 @@ public class JDBCUtils {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            conn = getConnect();
+            getConnect();
             String sql = "select * from sam";
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
@@ -154,14 +153,14 @@ public class JDBCUtils {
      */
     public void addOne(sam sam){
         try {
-            conn = getConnect();
+            getConnect();
             String sql = "insert into sam values("+sam.id+",'"+sam.name+"',"+sam.psd+");";
-            ps = conn.prepareStatement(sql);
+            ps = con.prepareStatement(sql);
             ps.executeUpdate();
         }catch (Exception e){
             e.printStackTrace();
         }
-        closeResource(conn,ps);
+        closeResource(con,ps);
     }
 
     /**
@@ -171,8 +170,8 @@ public class JDBCUtils {
      */
     public void UpdateSam(String sql,Object ...args){
         try {
-            conn = getConnect();
-            ps = conn.prepareStatement(sql);
+            getConnect();
+            ps = con.prepareStatement(sql);
             for (int i =0;i<args.length;i++){
                 ps.setString(i+1, String.valueOf(args[i]));
             }
@@ -180,7 +179,7 @@ public class JDBCUtils {
         }catch (Exception e){
             e.printStackTrace();
         }
-        closeResource(conn,ps);
+        closeResource(con,ps);
     }
 
     /*
@@ -191,58 +190,73 @@ public class JDBCUtils {
         3. 将学生添加到对应班级的集合stus中
         4. 返回班级list
      */
-    public List<clazz> QueryStu(){
+    public List<clazz> QueryCla(){
         List<clazz> classList = new ArrayList();
         String sqlclass = "select * from clazz";
         try {
             // 获取链接
-            conn = getConnect();
+            getConnect();
             // 预编译sql语句
-            ps = conn.prepareStatement(sqlclass);
+            ps = con.prepareStatement(sqlclass);
             // 执行
             ResultSet rs = ps.executeQuery();
             // 获区班级信息，并放入集合中
             while (rs.next()){
-                clazz clazz = new clazz();
-                clazz.setCid(rs.getInt("cid"));
-                clazz.setCname(rs.getString("cname"));
-                clazz.setCdesc(rs.getString("cdesc"));
+                clazz clazz = new clazz(rs.getInt("cid"),rs.getString("cname"),
+                        rs.getString("cdesc"),null);
                 classList.add(clazz);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return classList;
+    }
+    // 查询学生
+    public List QeryStu(){
+        List<clazz> classList = QueryCla();
+        for (int i = 0; i < classList.size(); i++) {
+            Integer cid = classList.get(i).getCid();
+            List<student> students = getStuByCid(cid);
+            // 将学生集合赋值到班级stus集合属性
+            classList.get(i).setStus(students);
+        }
+        closeResource(con,ps,rs);
+        return classList;
+    }
+
+    /**
+     * 通过cid查询到该班的所有学生
+     * @param cid
+     * @return
+     */
+    public List<student> getStuByCid(Integer cid){
+        List<student> students = null;
         try {
             // 查询学生表
             String sqlstu = "select * from student where cid=?";
             // 预编译sql语句
-            ps = conn.prepareStatement(sqlstu);
-            for (int i = 0; i < classList.size(); i++) {
-                // 创建集合暂存每个班级内的学生
-                List<student> students = new ArrayList<>();
-                // 填充占位符
-                ps.setObject(1, classList.get(i).getCid());//todo  填充占位符问题
-                // 执行sql语句
-                rs = ps.executeQuery();
-                while (rs.next()){
-                    student student = new student();
-                    student.setSid(rs.getInt("sid"));
-                    student.setCid(rs.getInt("cid"));
-                    student.setSname(rs.getString("sname"));
-                    student.setSex(rs.getString("sex"));
-                    student.setBirthday(rs.getDate("birthday"));
-                    // 将学生添加到学生的集合中
-                    students.add(student);
-                }
-                // 将学生集合赋值到班级stus集合属性
-                classList.get(i).setStus(students);
+            ps = con.prepareStatement(sqlstu);
+            // 创建集合暂存每个班级内的学生
+            students = new ArrayList<>();
+            // 填充占位符
+            ps.setObject(1, cid);
+            // 执行sql语句
+            rs = ps.executeQuery();
+            while (rs.next()){
+                student student = new student(
+                        rs.getInt("sid"),
+                        rs.getString("sname"),
+                        rs.getString("sex"),
+                        rs.getDate("birthday"),
+                        rs.getInt("cid")
+                );
+                // 将学生添加到学生的集合中
+                students.add(student);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            closeResource(conn,ps,rs);
         }
-        return classList;
+        return students;
     }
 
 

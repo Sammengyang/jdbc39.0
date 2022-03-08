@@ -139,7 +139,7 @@ public class UtilsTest {
     @Test
     public void TestQueryClass(){
         JDBCUtils jdbcUtils = new JDBCUtils();
-        List<clazz> clazzes = jdbcUtils.QueryStu();
+        List<clazz> clazzes = jdbcUtils.QeryStu();
         // 获取班级集合
         Iterator iterator = clazzes.iterator();
         while (iterator.hasNext()){

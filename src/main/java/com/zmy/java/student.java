@@ -19,13 +19,12 @@ public class student {
     public student() {
     }
 
-    public student(Integer sid, String sname, String sex, Date birthday, Integer cid, com.zmy.java.clazz clazz) {
+    public student(Integer sid, String sname, String sex, Date birthday, Integer cid) {
         this.sid = sid;
         this.sname = sname;
         this.sex = sex;
         this.birthday = birthday;
         this.cid = cid;
-        this.clazz = clazz;
     }
 
     @Override
